@@ -1,51 +1,28 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy container app to Azure Web App - AFG-CustomerService
+name: Build and Deploy Streamlit OCR App to Azure
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: 'ubuntu-latest'
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
-    - name: Log in to registry
-      uses: docker/login-action@v2
-      with:
-        registry: https://mcr.microsoft.com/
-        username: ${{ secrets.AzureAppService_ContainerUsername_bf777dff63f04e95859fe94fe3b4834d }}
-        password: ${{ secrets.AzureAppService_ContainerPassword_f5de0c6cee8e48f7a511132934ef3880 }}
-
-    - name: Build and push container image to registry
-      uses: docker/build-push-action@v3
-      with:
-        push: true
-        tags: mcr.microsoft.com/${{ secrets.AzureAppService_ContainerUsername_bf777dff63f04e95859fe94fe3b4834d }}/appsvc/staticsite:${{ github.sha }}
-        file: ./Dockerfile
-
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: 'production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
-    - name: Deploy to Azure Web App
-      id: deploy-to-webapp
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: 'AFG-CustomerService'
-        slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_005f6753450e4fe9a558cdf7f8315823 }}
-        images: 'mcr.microsoft.com/${{ secrets.AzureAppService_ContainerUsername_bf777dff63f04e95859fe94fe3b4834d }}/appsvc/staticsite:${{ github.sha }}'
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Azure Container Registry
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: AFG-CustomerService # (this is your Azure App Service name)
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          images: my-streamlit-app
+
+      - name: Build Docker Image
+        run: |
+          docker build -t my-streamlit-app .
