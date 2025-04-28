@@ -16,6 +16,6 @@ jobs:
       - name: Deploy app using ZipDeploy
         uses: azure/webapps-deploy@v2
         with:
-          app-name: AFG-CustomerService  # Your Azure App Service name
+          app-name: AFGCustomerService  # Your Azure App Service name
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: .
