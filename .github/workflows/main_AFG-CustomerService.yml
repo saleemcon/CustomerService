@@ -45,7 +45,7 @@ jobs:
       id: deploy-to-webapp
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'AFG-CustomerService'
+        app-name: 'AFGCustomerService'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_26c388a2cda14758b7b047ef2512d01b }}
         images: 'mcr.microsoft.com/${{ secrets.AzureAppService_ContainerUsername_a6bb41e08ce54ac7a78c80c57ad34012 }}/my-streamlit-app:${{ github.sha }}'
