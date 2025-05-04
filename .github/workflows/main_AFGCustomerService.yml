@@ -23,14 +23,14 @@ jobs:
       uses: docker/login-action@v2
       with:
         registry: https://mcr.microsoft.com/
-        username: ${{ secrets.AzureAppService_ContainerUsername_bf9b35c993114696a26886ebeb16752c }}
-        password: ${{ secrets.AzureAppService_ContainerPassword_adcf18903bf545ab9750cae5ecceb761 }}
+        username: ${{ secrets.AzureAppService_ContainerUsername_514ab448721946c7852ce049c8461fcf }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_29082d32cbcc4c60b0f714559b8f7817 }}
 
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: mcr.microsoft.com/${{ secrets.AzureAppService_ContainerUsername_bf9b35c993114696a26886ebeb16752c }}/appsvc/staticsite:${{ github.sha }}
+        tags: mcr.microsoft.com/${{ secrets.AzureAppService_ContainerUsername_514ab448721946c7852ce049c8461fcf }}/appsvc/staticsite:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
@@ -47,5 +47,5 @@ jobs:
       with:
         app-name: 'AFGCustomerService'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_39a297adea374e96a78ef7d15ee05061 }}
-        images: 'mcr.microsoft.com/${{ secrets.AzureAppService_ContainerUsername_bf9b35c993114696a26886ebeb16752c }}/appsvc/staticsite:${{ github.sha }}'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_292ee4116dc1449a8ccc0373fbf4fc6b }}
+        images: 'mcr.microsoft.com/${{ secrets.AzureAppService_ContainerUsername_514ab448721946c7852ce049c8461fcf }}/appsvc/staticsite:${{ github.sha }}'
