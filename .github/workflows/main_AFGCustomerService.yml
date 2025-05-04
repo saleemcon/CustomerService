@@ -10,9 +10,10 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:  # 👈 This enables manual triggering from GitHub Actions tab
 
 jobs:
-  test:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -30,12 +31,12 @@ jobs:
         pip install -r requirements.txt
         pip install streamlit
 
-    - name: Start Streamlit app and test
-      run: |
-        streamlit run app.py --server.headless true --server.port 8501 &
-        sleep 30
-        echo "Streamlit started successfully"
+    - name: Zip app for deployment
+      run: zip -r app.zip .
 
-    - name: Clean up
-      run: |
-        pkill -f "streamlit run" || true
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v3
+      with:
+        app-name: YOUR_AZURE_APP_NAME       # ← Replace with your App Service name
+        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
+        package: app.zip
