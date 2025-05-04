@@ -7,45 +7,35 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
-    runs-on: 'ubuntu-latest'
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
-    - name: Log in to registry
-      uses: docker/login-action@v2
-      with:
-        registry: https://mcr.microsoft.com/
-        username: ${{ secrets.AzureAppService_ContainerUsername_514ab448721946c7852ce049c8461fcf }}
-        password: ${{ secrets.AzureAppService_ContainerPassword_29082d32cbcc4c60b0f714559b8f7817 }}
-
-    - name: Build and push container image to registry
-      uses: docker/build-push-action@v3
-      with:
-        push: true
-        tags: mcr.microsoft.com/${{ secrets.AzureAppService_ContainerUsername_514ab448721946c7852ce049c8461fcf }}/appsvc/staticsite:${{ github.sha }}
-        file: ./Dockerfile
-
-  deploy:
+  test:
     runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: 'production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
-    - name: Deploy to Azure Web App
-      id: deploy-to-webapp
-      uses: azure/webapps-deploy@v2
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
       with:
-        app-name: 'AFGCustomerService'
-        slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_292ee4116dc1449a8ccc0373fbf4fc6b }}
-        images: 'mcr.microsoft.com/${{ secrets.AzureAppService_ContainerUsername_514ab448721946c7852ce049c8461fcf }}/appsvc/staticsite:${{ github.sha }}'
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install streamlit
+
+    - name: Start Streamlit app and test
+      run: |
+        streamlit run app.py --server.headless true --server.port 8501 &
+        sleep 30
+        echo "Streamlit started successfully"
+
+    - name: Clean up
+      run: |
+        pkill -f "streamlit run" || true
