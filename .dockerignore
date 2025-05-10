@@ -1,0 +1,6 @@
+.git
+__pycache__/
+*.pyc
+*.pkl
+.cache/
+*.DS_Store
