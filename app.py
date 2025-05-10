@@ -20,9 +20,9 @@ from langchain.vectorstores import FAISS
 from langchain.embeddings import HuggingFaceEmbeddings
 
 # Azure AI Foundry Configuration
-AZURE_ENDPOINT = "https://saljjjjj"
+AZURE_ENDPOINT = "https://salee-m81ple1k-francecentral.services.ai.azure.com/models"
 AZURE_MODEL_NAME = "DeepSeek-V3"
-AZURE_API_KEY = "kkkkkk"
+AZURE_API_KEY = "95boWs4DWgPr5Ar1xWh4Gnt2Lg9rR6uX2yBhi0vv9RrdeVnycYr7JQQJ99BCAC5T7U2XJ3w3AAAAACOGpy6K"
 
 st.set_page_config(page_title="Customer Service AI", layout="centered")
 
