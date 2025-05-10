@@ -1,17 +1,14 @@
 import io
 import os
-import hashlib
-import pandas as pd
 import streamlit as st
 from PyPDF2 import PdfReader
 from azure.ai.inference import ChatCompletionsClient
 from azure.ai.inference.models import SystemMessage, UserMessage
 from azure.core.credentials import AzureKeyCredential
-from pdf2image import convert_from_bytes
+import fitz
 import pytesseract
 from PIL import Image
-import fitz  # PyMuPDF
-import pptx  # python-pptx
+import pptx
 import pickle
 
 # HuggingFace Embeddings
@@ -27,9 +24,10 @@ AZURE_API_KEY = "95boWs4DWgPr5Ar1xWh4Gnt2Lg9rR6uX2yBhi0vv9RrdeVnycYr7JQQJ99BCAC5
 st.set_page_config(page_title="Customer Service AI", layout="centered")
 
 icon = Image.open("assets/Customer_Service.png")
-col1, col2 = st.columns([1, 12])
+col1, col2 = st.columns([3, 10])  # Give col1 more width
 with col1:
-    st.image(icon, width=200)
+    st.image(icon, width=250)  # Reduce to a realistic width that fits
+
 
 
 
@@ -40,21 +38,28 @@ client = ChatCompletionsClient(
 
 # Text extraction functions
 def extract_text_from_pdf(file_path):
-    with open(file_path, "rb") as f:
-        file_bytes = f.read()
-    doc = fitz.open(stream=file_bytes, filetype="pdf")
     extracted_text = []
     ocr_text = []
-    for i, page in enumerate(doc):
-        text = page.get_text().strip()
-        if text:
-            extracted_text.append(f"\n--- Page {i+1} [Text Layer] ---\n{text}")
+
+    # Read the file once into bytes
+    with open(file_path, "rb") as f:
+        file_bytes = f.read()
+
+    # Attempt text-layer extraction using PyPDF2
+    reader = PdfReader(io.BytesIO(file_bytes))
+    for i, page in enumerate(reader.pages):
+        text = page.extract_text()
+        if text and text.strip():
+            extracted_text.append(f"\n--- Page {i+1} [Text Layer] ---\n{text.strip()}")
         else:
-            pix = page.get_pixmap(dpi=150)
-            image = Image.open(io.BytesIO(pix.tobytes("png")))
-            image_ocr = pytesseract.image_to_string(image)
-            if image_ocr.strip():
-                ocr_text.append(f"\n--- Page {i+1} [OCR Layer] ---\n{image_ocr.strip()}")
+            # OCR fallback using PyMuPDF (render image and OCR)
+            doc = fitz.open(stream=file_bytes, filetype="pdf")
+            pix = doc.load_page(i).get_pixmap(dpi=300)
+            img = Image.open(io.BytesIO(pix.tobytes("png")))
+            ocr_result = pytesseract.image_to_string(img, lang="eng+ara")
+            if ocr_result.strip():
+                ocr_text.append(f"\n--- Page {i+1} [OCR Layer] ---\n{ocr_result.strip()}")
+
     return "\n".join(extracted_text + ocr_text).strip()
 
 def extract_text_from_pptx(file_path):
