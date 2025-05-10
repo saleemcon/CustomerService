@@ -26,8 +26,9 @@ jobs:
       # Step 3: Build and Push Docker image
       - name: Build and Push Docker image
         run: |
-          docker build -t afgcontreg1.azurecr.io/customer-service-ai .
-          docker push afgcontreg1.azurecr.io/customer-service-ai
+          docker build -t afgcontreg1.azurecr.io/customer-service-ai:latest .
+          docker push afgcontreg1.azurecr.io/customer-service-ai:latest
+
 
       # Step 4: Deploy Docker image to Azure Web App
       - name: Deploy to Azure Web App
